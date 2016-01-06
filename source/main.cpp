@@ -28,10 +28,7 @@ namespace
 	b2Vec2 lastp;
 }
 
-static RobotSimulation * robotSimulation;
-
-
-
+static std::unique_ptr<robo::ManualRobotController> robotSimulation;
 
 vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 {
@@ -56,17 +53,38 @@ static void Timer(int)
 	glutTimerFunc(framePeriod, Timer, 0);
 }
 
+static void processKeyDown(unsigned char key, int x, int y)
+{
+	//cout << "Key: " << key << " down.";
+
+	if (robotSimulation)
+	{
+		robotSimulation->onKeyboardKeyDown(key);
+	}
+}
+
+static void processKeyUp(unsigned char key, int x, int y)
+{
+//	cout << "Key: " << key << " up.";
+
+	if (robotSimulation)
+	{
+		robotSimulation->onKeyboardKeyUp(key);
+	}
+
+}
+
 static void SimulationLoop()
 {
 	//cout << "SimulationLoop\n";
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-	////draw the stuff!
-	//robotSimulation->draw();
+	//draw the stuff!
+	robotSimulation->draw();
 
-	//glutSwapBuffers();
+	glutSwapBuffers();
 }
 
 const int StatesCount = 5;
@@ -78,25 +96,25 @@ int main(int argc, char** argv)
 	const int membersInGeneration = 48;
 	//srand(222);
 
-	vector<GAMember> topMembers;
-	GeneticAlgorithm* ga = new GeneticAlgorithm(membersInGeneration, 1);
+	//vector<GAMember> topMembers;
+	//GeneticAlgorithm* ga = new GeneticAlgorithm(membersInGeneration, 1);
 
-	for (int i = 0; i < generationCount; i++)
-	{
-		topMembers.push_back(ga->getTopMember());
-		cout <<i <<": " << ga->getTopMember().getFitness() << endl;
-		ga->evolve();
-	}
+	//for (int i = 0; i < generationCount; i++)
+	//{
+	//	topMembers.push_back(ga->getTopMember());
+	//	cout <<i <<": " << ga->getTopMember().getFitness() << endl;
+	//	ga->evolve();
+	//}
 
-	GAMember topMember = topMembers[0];
-	for (int i=0; i<topMembers.size(); i++)
-	{
-		if (topMembers[i].getFitness() > topMember.getFitness())
-		{
-			topMember = topMembers[i];
-		}
-	}
-	robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, neuronsInLayer, topMember.getWeights()));
+	//GAMember topMember = topMembers[0];
+	//for (size_t i=0; i<topMembers.size(); i++)
+	//{
+	//	if (topMembers[i].getFitness() > topMember.getFitness())
+	//	{
+	//		topMember = topMembers[i];
+	//	}
+	//}
+	//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, neuronsInLayer, topMember.getWeights()));
 	//robotSimulation = new RobotSimulation(ActionMachine(StatesCount, topMember.getWeights()));
 
 	//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, 
@@ -105,25 +123,30 @@ int main(int argc, char** argv)
 	/*************************************************************************
 	/we have the special one. let's see how it moves
 	**************************************************************************/
-	cout << "Learning procedure has finished. Type any character to procede to graphic presentation.\n";
-	char c;
-	cin >> c;
+	//cout << "Learning procedure has finished. Type any character to proceed to graphic presentation.\n";
+	//char c;
+	//cin >> c;
 
-	//glutInit(&argc, argv);
-	//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	//glutInitWindowSize(width, height);
-	//char title[32];
-	//sprintf(title, "Box2D Version %d.%d.%d", b2_version.major, b2_version.minor, b2_version.revision);
-	//mainWindow = glutCreateWindow(title);
+	robotSimulation = std::make_unique<robo::ManualRobotController>(MotorNeuralNetwork(layerCount,
+		neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
 
-	//glutDisplayFunc(SimulationLoop);
-	//// Use a timer to control the frame rate.
-	//glutTimerFunc(framePeriod, Timer, 0);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutInitWindowSize(width, height);
+	char title[32];
+	sprintf(title, "Box2D Version %d.%d.%d", b2_version.major, b2_version.minor, b2_version.revision);
+	mainWindow = glutCreateWindow(title);
 
-	//glutMainLoop();
+	glutKeyboardFunc(processKeyDown);
+	glutKeyboardUpFunc(processKeyUp);
+
+	glutDisplayFunc(SimulationLoop);
+	// Use a timer to control the frame rate.
+	glutTimerFunc(framePeriod, Timer, 0);
+
+	glutMainLoop();
 
 	system("pause");
 
-	delete robotSimulation;
 	return 0;
 }

@@ -23,7 +23,7 @@ GAMember::GAMember(GAMember & memberA, GAMember & memberB) :
 {
 	debug_print("GAMember constructor");
 
-	for (int i=0; i<memberA._values.size(); i++)
+	for (size_t i=0; i<memberA._values.size(); i++)
 	{
 		_values.push_back(memberA._values[i] + RandomGenerator::GenerateUniform() * (memberB._values[i] - memberA._values[i]));
 	}
@@ -50,7 +50,7 @@ float GAMember::getFitness()
 	{
 		debug_print("Fitness NOT calculated, running simulation\n");
 		MotorNeuralNetwork mnn(layerCount, neuronsInLayer, _values);
-		RobotSimulation rs(mnn);
+		robo::ManualRobotController rs(mnn);
 
 		//ActionMachine am(StatesCount, _values);
 		//RobotSimulation rs(am);
@@ -68,7 +68,7 @@ float GAMember::getFitness()
 
 void GAMember::mutate()
 {
-	for (int i=0; i<_values.size(); i++)
+	for (size_t i=0; i<_values.size(); i++)
 	{
 		_values[i] += RandomGenerator::GenerateNormal(0.0, 1.0);
 	}

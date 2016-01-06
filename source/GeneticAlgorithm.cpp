@@ -31,7 +31,7 @@ void GeneticAlgorithm::findTopMember()
 {
 	debug_print("findTopMember\n");
 	_topMember = _members[0];
-	for (int i=1; i<_members.size(); i++)
+	for (size_t i=1; i<_members.size(); i++)
 	{
 		if(_topMember.getFitness() < _members[i].getFitness())
 		{
@@ -45,7 +45,7 @@ void GeneticAlgorithm::evolve()
 {
 	float fitnessSum = 0.0f;
 	//sum all fitnesses
-	for (int i = 0; i < _members.size(); i++)
+	for (size_t i = 0; i < _members.size(); i++)
 	{
 		debug_print("summing fitness..\n");
 		fitnessSum += _members[i].getFitness();
@@ -55,7 +55,7 @@ void GeneticAlgorithm::evolve()
 	debug_print("got fitness sum: %f\n", fitnessSum);
 
 	//set proper probabilities
-	for (int i = 0; i < _members.size(); i++)
+	for (size_t i = 0; i < _members.size(); i++)
 	{
 		if (fitnessSum < 0.0005) //fitnessSum == 0
 		{
@@ -69,7 +69,7 @@ void GeneticAlgorithm::evolve()
 
 	vector<GAMember> nextGeneration;
 
-	for (int i = 0; i < _members.size(); i++)
+	for (size_t i = 0; i < _members.size(); i++)
 	{
 		//lets draw parents indexes
 		debug_print("about to draw parent indexes\n");

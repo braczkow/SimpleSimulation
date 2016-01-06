@@ -1,36 +1,33 @@
 #pragma once
+#include "IRobotController.h"
 #include "Simulation.h"
 #include "MotorNeuralNetwork.h"
 #include "ActionMachine.h"
 #include <iostream>
 
-
-using namespace std;
-
-class RobotSimulation
+namespace robo 
+{
+class ManualRobotController : public IRobotController
 {
 public:
-	RobotSimulation(MotorNeuralNetwork mnn);
-	//RobotSimulation(ActionMachine am);
+	ManualRobotController(MotorNeuralNetwork mnn);
 
-	//RobotSimulation();
 
-	~RobotSimulation()
+	~ManualRobotController()
 	{
-		delete m_world;
 	}
 
-	void run(int nSteps = 1000);
+	virtual void onKeyboardKeyDown(unsigned char aKey);
+
+	virtual void onKeyboardKeyUp(unsigned char aKey);
+
+	virtual void run();
 	float getFitness();
-	float getV1();
-	float getV2();
 	void draw();
 	void updateMotors();
 	void step();
 
-private : 
-
-
+private:
 	void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color, float scale = 1.0f);
 	void DrawPolygon(b2Fixture* fixture, const b2Transform& xf, const b2Color& color);
 
@@ -45,9 +42,10 @@ private :
 	float _desiredAngleB;
 
 
-	b2World* m_world;
-	b2Body* m_groundBody;
+	std::unique_ptr<b2World> _world;
+	b2Body* _groundBody;
 
+	b2Body* _staticBox;
 	b2Body* _roboMain;
 	b2Body* _roboArm1;
 	b2Body* _roboArm2;
@@ -57,7 +55,12 @@ private :
 	MotorNeuralNetwork _mnn;
 	//ActionMachine _am;
 	pair<int, int> _currentState;
-	
 
 	float _fitness;
+
+	float _motorSpeed[2];
+
 };
+
+}
+

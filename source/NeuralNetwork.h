@@ -14,7 +14,7 @@ public:
 
 	NeuralNetwork(NeuralNetwork & nn)
 	{
-		for (int i = 0; i<nn._layers.size(); i++)
+		for (size_t i = 0; i< nn._layers.size(); i++)
 		{
 			_layers.push_back(nn._layers[i]->clone());
 

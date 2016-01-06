@@ -48,9 +48,8 @@ vector<float> MotorNeuralNetwork::calculateOutput(vector<float> input)
 	vector<float> currentInput = input;
 	vector<float> layerResult;
 
-	for (int i=0; i<_layers.size(); i++)
+	for (size_t i=0; i<_layers.size(); i++)
 	{
-
 		layerResult = _layers[i]->calculateOutput(currentInput);
 		currentInput = layerResult;
 	}

@@ -36,7 +36,7 @@ public:
 
 	friend ostream & operator << (ostream & out, const GAMember & m)
 	{
-		for (int i = 0; i < m._values.size(); i++)
+		for (size_t i = 0; i < m._values.size(); i++)
 		{
 			out << m._values[i] <<" ";
 		}
