@@ -1,0 +1,10 @@
+- move Draw* from RobotSimulation to ..
+- create SimulationController
+-- take input (if any)
+-- read config
+-- setup RobotSimulation(Model)
+-- pass data to SimulationView
+
+- Fitness calculation? 
+
+- scripts to copy external assets to desired locations
