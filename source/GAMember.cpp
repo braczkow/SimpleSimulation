@@ -1,5 +1,5 @@
 #include "GAMember.h"
-#include "RobotSimulation.h"
+#include "NNRoboSimulationModel.h"
 #include "MotorNeuralNetwork.h"
 #include "RandomGenerator.h"
 #include "ActionMachine.h"
@@ -50,14 +50,15 @@ float GAMember::getFitness()
 	{
 		debug_print("Fitness NOT calculated, running simulation\n");
 		MotorNeuralNetwork mnn(layerCount, neuronsInLayer, _values);
-		robo::ManualRobotController rs(mnn);
+		robo::NNRoboSimulationModel rs;
 
 		//ActionMachine am(StatesCount, _values);
 		//RobotSimulation rs(am);
 
-		rs.run();
+		rs.step();
 		debug_print("After simulation, about to get distance\n");
-		_fitness = max(0.0f, rs.getFitness());
+		throw 1;
+		//_fitness = max(0.0f, rs.getFitness());
 
 		debug_print("Setting _fitnessCalculated = true\n");
 		_fitnessCalculated = true;

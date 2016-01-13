@@ -1,5 +1,5 @@
 #include "GeneticAlgorithm.h"
-#include "RobotSimulation.h"
+#include "RoboSimulationModelBase.h"
 #include "RandomGenerator.h"
 #include <iostream>
 #include <random>

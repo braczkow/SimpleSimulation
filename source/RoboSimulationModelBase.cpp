@@ -1,5 +1,6 @@
-#include "RobotSimulation.h"
+#include "RoboSimulationModelBase.h"
 #include "RandomGenerator.h"
+#include "Box2D/Box2D.h"
 
 #include "freeglut.h"
 #include <iostream>
@@ -24,8 +25,8 @@ extern const int StatesCount;
 namespace robo
 {
 
-ManualRobotController::ManualRobotController(MotorNeuralNetwork mnn) :
-	_mnn(mnn), _currentState(0, 0), _fitness(0.0f), roboArmHx(1.5f), roboArmHy(0.2f), 
+RoboSimulationModelBase::RoboSimulationModelBase() :
+	 roboArmHx(1.5f), roboArmHy(0.2f),
 	_roboMain(nullptr), _roboArm1(nullptr), _roboArm2(nullptr), _jointA(nullptr), _jointB(nullptr),
 	_roboWheel(nullptr), _jointC(nullptr)
 {
@@ -80,7 +81,7 @@ ManualRobotController::ManualRobotController(MotorNeuralNetwork mnn) :
 		//main robo part
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(0.0f, 1.0f);
+		bodyDef.position.Set(2.0f, 1.0f);
 
 		_roboMain = _world->CreateBody(&bodyDef);
 
@@ -99,7 +100,7 @@ ManualRobotController::ManualRobotController(MotorNeuralNetwork mnn) :
 	{  //robo arm1
 		b2BodyDef bd;
 		bd.type = b2_dynamicBody;
-		bd.position.Set(2.6f, 3.38f);
+		bd.position.Set(4.6f, 3.38f);
 		bd.angle = 45.0f * DEG_TO_RAD;
 
 		_roboArm1 = _world->CreateBody(&bd);
@@ -119,7 +120,7 @@ ManualRobotController::ManualRobotController(MotorNeuralNetwork mnn) :
 	{  //robo arm2
 		b2BodyDef bd;
 		bd.type = b2_dynamicBody;
-		bd.position.Set(4.5f, 3.0f);
+		bd.position.Set(6.5f, 3.0f);
 		bd.angle = -45.0f * DEG_TO_RAD;
 
 		_roboArm2 = _world->CreateBody(&bd);
@@ -218,188 +219,154 @@ ManualRobotController::ManualRobotController(MotorNeuralNetwork mnn) :
 		_jointC = (b2RevoluteJoint*)_world->CreateJoint(&revJointDef);
 	}
 
-	
+}
 
-	_motorSpeed[0] = 0.0f;
-	_motorSpeed[1] = 0.0f;
+void RoboSimulationModelBase::onKeyboardKeyDown(unsigned char aKey) 
+{
 
 }
 
-void ManualRobotController::onKeyboardKeyDown(unsigned char aKey) 
+void RoboSimulationModelBase::onKeyboardKeyUp(unsigned char aKey) 
 {
-	int sign = -1;
-	float scale = 0.5f;
-	switch (aKey)
+
+}
+
+
+std::vector<std::shared_ptr<IShape>> RoboSimulationModelBase::getShapes()
+{
+	std::vector<std::shared_ptr<IShape>> shapes;
+
+	auto wheelShape = std::make_shared<Circle2D>();
+	wheelShape->angle = _roboWheel->GetTransform().q.GetAngle();
+	wheelShape->position.x = _roboWheel->GetTransform().p.x;
+	wheelShape->position.y = _roboWheel->GetTransform().p.y;
+	wheelShape->radius = ((b2CircleShape*)_roboWheel->GetFixtureList()[0].GetShape())->m_radius;
+	shapes.push_back(wheelShape);
+
+	auto mainShape = makeRectangularShape(_roboMain);
+	shapes.push_back(mainShape);
+
+	auto arm1Shape = makeRectangularShape(_roboArm1);
+	shapes.push_back(arm1Shape);
+
+	auto arm2Shape = makeRectangularShape(_roboArm2);
+	shapes.push_back(arm2Shape);
+
+	auto staticShape = makeRectangularShape(_staticBox);
+	shapes.push_back(staticShape);
+
+	return shapes;
+}
+
+std::shared_ptr<Rectangular2D> RoboSimulationModelBase::makeRectangularShape(b2Body* body)
+{
+	auto recShape = std::make_shared<Rectangular2D>();
+	auto fixture = (b2PolygonShape*)body->GetFixtureList()[0].GetShape();
+	auto trans = body->GetTransform();
+
+	for (int32 i = 0; i < fixture->GetVertexCount(); ++i)
 	{
-	case 'a' : 
-		_motorSpeed[0] = -scale * sign;
-		break;
-
-	case 'z' :
-		_motorSpeed[0] = scale * sign;
-		break;
-
-	case 's' :
-		_motorSpeed[1] = -scale * sign;
-		break;
-
-	case 'x' :
-		_motorSpeed[1] = scale * sign;
-		break;
+		auto v = b2Mul(trans, fixture->m_vertices[i]);
+		recShape->vertices.push_back(robo::Vec2d(v.x, v.y));
 	}
 
+	return recShape;
 }
 
-void ManualRobotController::onKeyboardKeyUp(unsigned char aKey) 
-{
-	switch (aKey)
-	{
-	case 'a':
-		_motorSpeed[0] =  0.0f;
-		break;
+//void RoboSimulationModelBase::updateFitness()
+//{
+//	//_fitness += _roboMain->GetLinearVelocity().x;
+//}
+//
+//float RoboSimulationModelBase::getFitness()
+//{
+//	//return _fitness;
+//	return _roboMain->GetPosition().x;
+//}
+//
+//float RoboSimulationModelBase::getDistance()
+//{
+//	//debug_print("returning = %f\n", _roboMain->GetPosition().x + _roboArm2->GetPosition().x);
+//	return _roboMain->GetPosition().x; // + _roboArm2->GetPosition().x;
+//}
 
-	case 'z':
-		_motorSpeed[0] = 0.0f;
-		break;
+//void RoboSimulationModelBase::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color, float scale /*=1.0f*/)
+//{
+//	glColor4f(color.r, color.g, color.b, 1.0f);
+//	glBegin(GL_POLYGON);
+//	for (int32 i = 0; i < vertexCount; ++i)
+//	{ 
+//		glVertex2f(vertices[i].x * scale, vertices[i].y * scale);
+//	}
+//	glEnd();
+//}
 
-	case 's':
-		_motorSpeed[1] = 0.0f;
-		break;
-
-	case 'x':
-		_motorSpeed[1] = 0.0f;
-		break;
-	}
-}
-
-
-void ManualRobotController::updateMotors()
-{
-	if (_jointA)
-		_jointA->SetMotorSpeed(_motorSpeed[0]);
-
-	if (_jointB)
-		_jointB->SetMotorSpeed(_motorSpeed[1]);
-}
-
-
-void ManualRobotController::step()
-{
-	updateMotors();
-
-	//step
-	float32 timeStep = 0.05f;
-	int32 velocityIterations = 8;
-	int32 positionIterations = 3;
-	_world->Step(timeStep, velocityIterations, positionIterations);
-
-	//update fitness
-	updateFitness();
-}
-
-void ManualRobotController::run()
-{
-	int nSteps = 1;
-	for (int i = 0; i < nSteps; i++)
-	{
-		step();
-	}
-
-}
-void ManualRobotController::updateFitness()
-{
-	//_fitness += _roboMain->GetLinearVelocity().x;
-}
-
-float ManualRobotController::getFitness()
-{
-	//return _fitness;
-	return _roboMain->GetPosition().x;
-}
-
-float ManualRobotController::getDistance()
-{
-	//debug_print("returning = %f\n", _roboMain->GetPosition().x + _roboArm2->GetPosition().x);
-	return _roboMain->GetPosition().x; // + _roboArm2->GetPosition().x;
-}
-
-void ManualRobotController::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color, float scale /*=1.0f*/)
-{
-	glColor4f(color.r, color.g, color.b, 1.0f);
-	glBegin(GL_POLYGON);
-	for (int32 i = 0; i < vertexCount; ++i)
-	{ 
-		glVertex2f(vertices[i].x * scale, vertices[i].y * scale);
-	}
-	glEnd();
-}
-
-void ManualRobotController::DrawPolygon(b2Fixture* fixture, const b2Transform& transform, const b2Color& color)
-{
-
-	b2PolygonShape* poly = (b2PolygonShape*)fixture->GetShape();
-	int32 vertexCount = poly->GetVertexCount();
-	b2Vec2 vertices[b2_maxPolygonVertices];
-
-	for (int32 i = 0; i < vertexCount; ++i)
-	{
-		vertices[i] = b2Mul(transform, poly->m_vertices[i]);
-	}
-
-	DrawSolidPolygon(vertices, vertexCount, color, 0.1f);
-}
-
-void ManualRobotController::DrawCircle(b2Fixture* fixture, const b2Transform& transform, const b2Color& color, float32 scale)
-{
-	auto circle = (b2CircleShape*)fixture->GetShape();
-
-	auto radius = circle->m_radius * scale;
-	auto circlePosition = transform.p;
-
-	float32 x = circlePosition.x * scale;
-	float32 y = circlePosition.y * scale;
-
-	int trianglesCount = 20;
-	GLfloat twicePi = 2.0f * 3.14f;
-
-
-	auto angle = transform.q.GetAngle();
-
-	glColor4f(color.r, color.g, color.b, 1.0f);
-
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex2f(x, y); // center of circle
-	for (auto i = 0; i <= trianglesCount; i++) 
-	{
-		glVertex2f(
-			x + (radius * cos(i *  twicePi / trianglesCount + angle) ),
-			y + (radius * sin(i * twicePi / trianglesCount + angle)  )
-			);
-
-		if (i == trianglesCount / 2 - 1)
-		{
-			glColor4f(color.g, color.b, color.r, 1.0f);
-		}
-	}
-	glEnd();
-
-}
-
-void ManualRobotController::draw()
-{
-	if (_staticBox)
-		DrawPolygon(&(_staticBox->GetFixtureList()[0]), _staticBox->GetTransform(), b2Color(1, 1, 0));
-
-
-	DrawPolygon(&(_roboMain->GetFixtureList()[0]), _roboMain->GetTransform(), b2Color(1, 0, 0));
-	DrawPolygon(&(_roboArm1->GetFixtureList()[0]), _roboArm1->GetTransform(), b2Color(0, 1, 0));
-	DrawPolygon(&(_roboArm2->GetFixtureList()[0]), _roboArm2->GetTransform(), b2Color(0, 0, 1));
-
-
-	if (_roboWheel)
-		DrawCircle(&(_roboWheel->GetFixtureList()[0]), _roboWheel->GetTransform(), b2Color(1, 0, 1), 0.1f);
-
-}
+//void RoboSimulationModelBase::DrawPolygon(b2Fixture* fixture, const b2Transform& transform, const b2Color& color)
+//{
+//
+//	b2PolygonShape* poly = (b2PolygonShape*)fixture->GetShape();
+//	int32 vertexCount = poly->GetVertexCount();
+//	b2Vec2 vertices[b2_maxPolygonVertices];
+//
+//	for (int32 i = 0; i < vertexCount; ++i)
+//	{
+//		vertices[i] = b2Mul(transform, poly->m_vertices[i]);
+//	}
+//
+//	DrawSolidPolygon(vertices, vertexCount, color, 0.1f);
+//}
+//
+//void RoboSimulationModelBase::DrawCircle(b2Fixture* fixture, const b2Transform& transform, const b2Color& color, float32 scale)
+//{
+//	auto circle = (b2CircleShape*)fixture->GetShape();
+//
+//	auto radius = circle->m_radius * scale;
+//	auto circlePosition = transform.p;
+//
+//	float32 x = circlePosition.x * scale;
+//	float32 y = circlePosition.y * scale;
+//
+//	int trianglesCount = 20;
+//	GLfloat twicePi = 2.0f * 3.14f;
+//
+//
+//	auto angle = transform.q.GetAngle();
+//
+//	glColor4f(color.r, color.g, color.b, 1.0f);
+//
+//	glBegin(GL_TRIANGLE_FAN);
+//	glVertex2f(x, y); // center of circle
+//	for (auto i = 0; i <= trianglesCount; i++) 
+//	{
+//		glVertex2f(
+//			x + (radius * cos(i *  twicePi / trianglesCount + angle) ),
+//			y + (radius * sin(i * twicePi / trianglesCount + angle)  )
+//			);
+//
+//		if (i == trianglesCount / 2 - 1)
+//		{
+//			glColor4f(color.g, color.b, color.r, 1.0f);
+//		}
+//	}
+//	glEnd();
+//
+//}
+//
+//void RoboSimulationModelBase::draw()
+//{
+//	if (_staticBox)
+//		DrawPolygon(&(_staticBox->GetFixtureList()[0]), _staticBox->GetTransform(), b2Color(1, 1, 0));
+//
+//
+//	DrawPolygon(&(_roboMain->GetFixtureList()[0]), _roboMain->GetTransform(), b2Color(1, 0, 0));
+//	DrawPolygon(&(_roboArm1->GetFixtureList()[0]), _roboArm1->GetTransform(), b2Color(0, 1, 0));
+//	DrawPolygon(&(_roboArm2->GetFixtureList()[0]), _roboArm2->GetTransform(), b2Color(0, 0, 1));
+//
+//
+//	if (_roboWheel)
+//		DrawCircle(&(_roboWheel->GetFixtureList()[0]), _roboWheel->GetTransform(), b2Color(1, 0, 1), 0.1f);
+//
+//}
 
 } //namespace robo
 

@@ -2,11 +2,11 @@
 
 namespace robo
 {
-class IRobotController
+class IRobotSimulationModel
 {
 public:
-	IRobotController() {}
-	virtual ~IRobotController() {}
+	IRobotSimulationModel() {}
+	virtual ~IRobotSimulationModel() {}
 
 	virtual void onKeyboardKeyDown(unsigned char aKey) {}
 

@@ -1,7 +1,9 @@
 #include "Simulation.h"
 #include "NeuralNetwork.h"
 #include "MotorNeuralNetwork.h"
-#include "RobotSimulation.h"
+#include "RoboSimulationModelBase.h"
+#include "ManualRoboSimulationModel.h"
+#include "RoboSimulationView.h"
 #include "GeneticAlgorithm.h"
 #include "TestSimulation.h"
 #include "ActionMachine.h"
@@ -28,7 +30,7 @@ namespace
 	b2Vec2 lastp;
 }
 
-static std::unique_ptr<robo::ManualRobotController> robotSimulation;
+static std::unique_ptr<robo::RoboSimulationModelBase> roboSimModel;
 
 vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 {
@@ -44,9 +46,8 @@ vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 static void Timer(int)
 {
 	//cout << "Timer\n";
-	robotSimulation->step();
+	roboSimModel->step();
 
-	//cout << "V1: " << robotSimulation->getV1() << "\tV2: " << robotSimulation->getV2()  <<endl;
 
 	glutSetWindow(mainWindow);
 	glutPostRedisplay();
@@ -57,9 +58,14 @@ static void processKeyDown(unsigned char key, int x, int y)
 {
 	//cout << "Key: " << key << " down.";
 
-	if (robotSimulation)
+	if (roboSimModel)
 	{
-		robotSimulation->onKeyboardKeyDown(key);
+		roboSimModel->onKeyboardKeyDown(key);
+	}
+
+	if (key == 'u')
+	{
+		roboSimModel->step();
 	}
 }
 
@@ -67,9 +73,9 @@ static void processKeyUp(unsigned char key, int x, int y)
 {
 //	cout << "Key: " << key << " up.";
 
-	if (robotSimulation)
+	if (roboSimModel)
 	{
-		robotSimulation->onKeyboardKeyUp(key);
+		roboSimModel->onKeyboardKeyUp(key);
 	}
 
 }
@@ -77,12 +83,15 @@ static void processKeyUp(unsigned char key, int x, int y)
 static void SimulationLoop()
 {
 	//cout << "SimulationLoop\n";
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	//draw the stuff!
-	robotSimulation->draw();
+	robo::RoboSimulationView view;
+	auto shapes = roboSimModel->getShapes();
+	view.drawShapes(shapes);
 
 	glutSwapBuffers();
 }
@@ -127,8 +136,10 @@ int main(int argc, char** argv)
 	//char c;
 	//cin >> c;
 
-	robotSimulation = std::make_unique<robo::ManualRobotController>(MotorNeuralNetwork(layerCount,
-		neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
+	//robotSimulation = std::make_unique<robo::RoboSimulationModelBase>(MotorNeuralNetwork(layerCount,
+	//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
+
+	roboSimModel = std::make_unique<robo::ManualRoboSimulationModel>();
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
