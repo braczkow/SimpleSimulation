@@ -5,9 +5,11 @@ namespace robo
 {
 ManualRoboSimulationModel::ManualRoboSimulationModel()
 {
-		_jointA->SetMotorSpeed(0.0f);
+	_jointA->EnableMotor(true);
+	_jointB->EnableMotor(true);
 
-		_jointB->SetMotorSpeed(0.0f);
+	_jointA->SetMotorSpeed(0.0f);
+	_jointB->SetMotorSpeed(0.0f);
 }
 void ManualRoboSimulationModel::step()
 {

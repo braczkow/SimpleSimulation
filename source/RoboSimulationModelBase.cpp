@@ -151,7 +151,7 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		revJointDef.lowerAngle = -45 * DEG_TO_RAD;
 		revJointDef.upperAngle = 90 * DEG_TO_RAD;
 
-		revJointDef.enableMotor = true;
+		revJointDef.enableMotor = false;
 		revJointDef.maxMotorTorque = 100;
 		revJointDef.motorSpeed = 0;
 
@@ -174,7 +174,7 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		revJointDef.upperAngle = 45 * DEG_TO_RAD;
 
 
-		revJointDef.enableMotor = true;
+		revJointDef.enableMotor = false;
 		revJointDef.maxMotorTorque = 100;
 		revJointDef.motorSpeed = 0.0f;
 
@@ -184,7 +184,7 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 
 	if (enableRobo)
 	{  //robo wheel
-		b2Vec2 position(0.0f, 0.0f);
+		b2Vec2 position(0.0f, 0.5f);
 
 		b2BodyDef bd;
 		bd.type = b2_dynamicBody;

@@ -1,4 +1,3 @@
-#include "Simulation.h"
 #include "NeuralNetwork.h"
 #include "MotorNeuralNetwork.h"
 #include "RoboSimulationModelBase.h"
@@ -10,10 +9,15 @@
 #include "RandomGenerator.h"
 
 #include <iostream>
+#include <fstream>
 #include <vector>
-#include <Box2D/Box2D.h>
-#include "freeglut.h"
 #include <time.h>
+
+#include <Box2D/Box2D.h>
+
+#include "freeglut.h"
+
+#include "json/json.h"
 
 using namespace std;
 
@@ -47,7 +51,6 @@ static void Timer(int)
 {
 	//cout << "Timer\n";
 	roboSimModel->step();
-
 
 	glutSetWindow(mainWindow);
 	glutPostRedisplay();
@@ -100,9 +103,14 @@ const int StatesCount = 5;
 
 int main(int argc, char** argv)
 {
+	Json::Value root;
+	Json::Reader reader;
+	std::ifstream in_file("../../config.json", std::ifstream::binary);
+	auto suc = reader.parse(in_file, root);
 
-	const int generationCount = 10;
-	const int membersInGeneration = 48;
+
+	//const int generationCount = 10;
+	//const int membersInGeneration = 48;
 	//srand(222);
 
 	//vector<GAMember> topMembers;

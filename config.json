@@ -1,0 +1,24 @@
+{
+"debug" : 
+{
+"logLevel" : 1,
+"autorun" : 0
+},
+
+"simulation" : 
+{
+"type" : "manual"
+},
+
+"robo" :
+{
+	"parts" : 
+	{
+	"static" : {"color" : "yellow"},
+	"main" : {"color" : "blue"},
+	"arm1" : {"color" : "green"},
+	"arm2" : {"color" : "yellow"},
+	"wheel" : {"color" : "green"}
+	}
+}
+}
