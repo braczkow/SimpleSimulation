@@ -4,10 +4,12 @@
 namespace robo
 {
 
-struct IShape
+struct RoboPart
 {
-	IShape() {}
-	virtual ~IShape() {}
+	RoboPart() {}
+	virtual ~RoboPart() {}
+
+	std::string name;
 };
 
 struct Vec2d
@@ -19,7 +21,7 @@ struct Vec2d
 	float y;
 };
 
-struct Rectangular2D : public IShape
+struct Rectangular2D : public RoboPart
 {
 	Rectangular2D() {}
 	virtual ~Rectangular2D() {}
@@ -27,7 +29,7 @@ struct Rectangular2D : public IShape
 	std::vector<Vec2d> vertices;
 };
 
-struct Circle2D : public IShape
+struct Circle2D : public RoboPart
 {
 	Circle2D() {}
 	virtual ~Circle2D() {}
@@ -39,6 +41,7 @@ struct Circle2D : public IShape
 
 struct Color
 {
+	Color() {}
 	Color(float rr, float gg, float bb, float aa) :
 		r(rr), g(gg), b(bb), a(aa) {}
 	float r, g, b, a;

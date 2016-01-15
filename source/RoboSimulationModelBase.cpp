@@ -232,35 +232,34 @@ void RoboSimulationModelBase::onKeyboardKeyUp(unsigned char aKey)
 }
 
 
-std::vector<std::shared_ptr<IShape>> RoboSimulationModelBase::getShapes()
+std::vector<std::shared_ptr<RoboPart>> RoboSimulationModelBase::getShapes()
 {
-	std::vector<std::shared_ptr<IShape>> shapes;
+	std::vector<std::shared_ptr<RoboPart>> shapes;
 
-	auto wheelShape = std::make_shared<Circle2D>();
-	wheelShape->angle = _roboWheel->GetTransform().q.GetAngle();
-	wheelShape->position.x = _roboWheel->GetTransform().p.x;
-	wheelShape->position.y = _roboWheel->GetTransform().p.y;
-	wheelShape->radius = ((b2CircleShape*)_roboWheel->GetFixtureList()[0].GetShape())->m_radius;
+
+	auto wheelShape = makeRoboCirclePartDesc(_roboWheel, "wheel");
 	shapes.push_back(wheelShape);
 
-	auto mainShape = makeRectangularShape(_roboMain);
+	auto mainShape = makeRoboRectangularPartDesc(_roboMain, "main");
 	shapes.push_back(mainShape);
 
-	auto arm1Shape = makeRectangularShape(_roboArm1);
+	auto arm1Shape = makeRoboRectangularPartDesc(_roboArm1, "arm1");
 	shapes.push_back(arm1Shape);
 
-	auto arm2Shape = makeRectangularShape(_roboArm2);
+	auto arm2Shape = makeRoboRectangularPartDesc(_roboArm2, "arm2");
 	shapes.push_back(arm2Shape);
 
-	auto staticShape = makeRectangularShape(_staticBox);
+	auto staticShape = makeRoboRectangularPartDesc(_staticBox, "static");
 	shapes.push_back(staticShape);
 
 	return shapes;
 }
 
-std::shared_ptr<Rectangular2D> RoboSimulationModelBase::makeRectangularShape(b2Body* body)
+std::shared_ptr<Rectangular2D> RoboSimulationModelBase::makeRoboRectangularPartDesc(b2Body* body, const std::string name)
 {
 	auto recShape = std::make_shared<Rectangular2D>();
+	recShape->name = name;
+
 	auto fixture = (b2PolygonShape*)body->GetFixtureList()[0].GetShape();
 	auto trans = body->GetTransform();
 
@@ -272,6 +271,20 @@ std::shared_ptr<Rectangular2D> RoboSimulationModelBase::makeRectangularShape(b2B
 
 	return recShape;
 }
+
+std::shared_ptr<Circle2D> RoboSimulationModelBase::makeRoboCirclePartDesc(b2Body* body, const std::string name)
+{
+	auto wheelShape = std::make_shared<Circle2D>();
+	wheelShape->name = name;
+
+	wheelShape->angle = body->GetTransform().q.GetAngle();
+	wheelShape->position.x = body->GetTransform().p.x;
+	wheelShape->position.y = body->GetTransform().p.y;
+	wheelShape->radius = ((b2CircleShape*)body->GetFixtureList()[0].GetShape())->m_radius;
+
+	return wheelShape;
+}
+
 
 //void RoboSimulationModelBase::updateFitness()
 //{

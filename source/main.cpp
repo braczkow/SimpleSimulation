@@ -7,6 +7,7 @@
 #include "TestSimulation.h"
 #include "ActionMachine.h"
 #include "RandomGenerator.h"
+#include "ConfigReader.h"
 
 #include <iostream>
 #include <fstream>
@@ -35,6 +36,7 @@ namespace
 }
 
 static std::unique_ptr<robo::RoboSimulationModelBase> roboSimModel;
+static std::unique_ptr<robo::RoboSimulationView> roboView;
 
 vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 {
@@ -92,21 +94,20 @@ static void SimulationLoop()
 	glLoadIdentity();
 
 	//draw the stuff!
-	robo::RoboSimulationView view;
 	auto shapes = roboSimModel->getShapes();
-	view.drawShapes(shapes);
+	roboView->drawShapes(shapes);
 
 	glutSwapBuffers();
 }
 
 const int StatesCount = 5;
 
+
+
 int main(int argc, char** argv)
 {
-	Json::Value root;
-	Json::Reader reader;
-	std::ifstream in_file("../../config.json", std::ifstream::binary);
-	auto suc = reader.parse(in_file, root);
+
+
 
 
 	//const int generationCount = 10;
@@ -147,7 +148,12 @@ int main(int argc, char** argv)
 	//robotSimulation = std::make_unique<robo::RoboSimulationModelBase>(MotorNeuralNetwork(layerCount,
 	//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
 
+
+	robo::ConfigReader cr;
+	cr.tryParse("../../config.json");
+
 	roboSimModel = std::make_unique<robo::ManualRoboSimulationModel>();
+	roboView = std::make_unique<robo::RoboSimulationView>(cr.getRoboConfig());
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);

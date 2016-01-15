@@ -2,19 +2,34 @@
 
 #include "freeglut.h"
 
+#include <algorithm>
+
 namespace robo
 {
-void RoboSimulationView::drawShapes(std::vector<std::shared_ptr<robo::IShape>> shapes)
+void RoboSimulationView::drawShapes(std::vector<std::shared_ptr<robo::RoboPart>> shapes)
 {
 	for (auto s : shapes)
 	{
+		auto colorIt = std::find_if(roboConfig.roboParts.begin(), roboConfig.roboParts.end(),
+		[s](const RoboConfig::RoboPartDescription rpd)->bool
+		{
+			return s->name == rpd.name;
+		});
+		
+		Color c(1, 0, 0, 1);
+		if (colorIt != roboConfig.roboParts.end())
+		{
+			c = colorIt->color;
+		}
+
+
 		if (auto rec = std::dynamic_pointer_cast<Rectangular2D>(s))
 		{
-			drawRectangular(rec, Color(1, 1, 0, 0), 0.1f);
+			drawRectangular(rec, c, 0.1f);
 		}
 		else if (auto circ = std::dynamic_pointer_cast<Circle2D>(s))
 		{
-			drawCircle(circ, Color(1, 0, 0, 0), 0.1f);
+			drawCircle(circ, c, 0.1f);
 		}
 
 	}

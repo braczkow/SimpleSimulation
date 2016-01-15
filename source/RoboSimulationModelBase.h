@@ -1,6 +1,6 @@
 #pragma once
 #include "IRoboSimulationModel.h"
-#include "Shapes.h"
+#include "RoboParts.h"
 
 #include "Box2D/Box2D.h"
 
@@ -24,7 +24,7 @@ public:
 
 	virtual void step() = 0;
 
-	std::vector<std::shared_ptr<IShape>> getShapes();
+	std::vector<std::shared_ptr<RoboPart>> getShapes();
 
 	//float getFitness();
 	//void draw();
@@ -40,7 +40,8 @@ protected:
 	//float getDistance();
 	//void setNewDesiredAngles(pair<int, int> nextState);
 
-	std::shared_ptr<Rectangular2D> makeRectangularShape(b2Body* body);
+	std::shared_ptr<Rectangular2D> makeRoboRectangularPartDesc(b2Body* body, const std::string name);
+	std::shared_ptr<Circle2D> makeRoboCirclePartDesc(b2Body* body, const std::string name);
 
 	const float roboArmHx;
 	const float roboArmHy;
