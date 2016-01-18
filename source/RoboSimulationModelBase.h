@@ -1,6 +1,7 @@
 #pragma once
 #include "IRoboSimulationModel.h"
 #include "RoboParts.h"
+#include "ConfigReader.h"
 
 #include "Box2D/Box2D.h"
 
@@ -14,7 +15,7 @@ namespace robo
 class RoboSimulationModelBase //: public IRobotSimulationModel
 {
 public:
-	RoboSimulationModelBase();
+	RoboSimulationModelBase(const RoboConfig& roboConf);
 
 	~RoboSimulationModelBase() { }
 
@@ -42,6 +43,8 @@ protected:
 
 	std::shared_ptr<Rectangular2D> makeRoboRectangularPartDesc(b2Body* body, const std::string name);
 	std::shared_ptr<Circle2D> makeRoboCirclePartDesc(b2Body* body, const std::string name);
+
+	RoboConfig _roboConfig;
 
 	const float roboArmHx;
 	const float roboArmHy;

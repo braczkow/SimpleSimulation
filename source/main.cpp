@@ -37,6 +37,7 @@ namespace
 
 static std::unique_ptr<robo::RoboSimulationModelBase> roboSimModel;
 static std::unique_ptr<robo::RoboSimulationView> roboView;
+bool doAutorun = true;
 
 vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 {
@@ -52,7 +53,11 @@ vector<float> generate(int count, float min = 0.0f, float max=1.0f)
 static void Timer(int)
 {
 	//cout << "Timer\n";
-	roboSimModel->step();
+	if (doAutorun)
+	{
+		roboSimModel->step();
+	}
+	
 
 	glutSetWindow(mainWindow);
 	glutPostRedisplay();
@@ -103,56 +108,14 @@ static void SimulationLoop()
 const int StatesCount = 5;
 
 
-
 int main(int argc, char** argv)
 {
-
-
-
-
-	//const int generationCount = 10;
-	//const int membersInGeneration = 48;
-	//srand(222);
-
-	//vector<GAMember> topMembers;
-	//GeneticAlgorithm* ga = new GeneticAlgorithm(membersInGeneration, 1);
-
-	//for (int i = 0; i < generationCount; i++)
-	//{
-	//	topMembers.push_back(ga->getTopMember());
-	//	cout <<i <<": " << ga->getTopMember().getFitness() << endl;
-	//	ga->evolve();
-	//}
-
-	//GAMember topMember = topMembers[0];
-	//for (size_t i=0; i<topMembers.size(); i++)
-	//{
-	//	if (topMembers[i].getFitness() > topMember.getFitness())
-	//	{
-	//		topMember = topMembers[i];
-	//	}
-	//}
-	//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, neuronsInLayer, topMember.getWeights()));
-	//robotSimulation = new RobotSimulation(ActionMachine(StatesCount, topMember.getWeights()));
-
-	//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, 
-	//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
-
-	/*************************************************************************
-	/we have the special one. let's see how it moves
-	**************************************************************************/
-	//cout << "Learning procedure has finished. Type any character to proceed to graphic presentation.\n";
-	//char c;
-	//cin >> c;
-
-	//robotSimulation = std::make_unique<robo::RoboSimulationModelBase>(MotorNeuralNetwork(layerCount,
-	//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
-
-
 	robo::ConfigReader cr;
 	cr.tryParse("../../config.json");
 
-	roboSimModel = std::make_unique<robo::ManualRoboSimulationModel>();
+	doAutorun = cr.getDebugConfig().autorun;
+
+	roboSimModel = std::make_unique<robo::ManualRoboSimulationModel>(cr.getRoboConfig());
 	roboView = std::make_unique<robo::RoboSimulationView>(cr.getRoboConfig());
 
 	glutInit(&argc, argv);
@@ -175,3 +138,43 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+
+
+//const int generationCount = 10;
+//const int membersInGeneration = 48;
+//srand(222);
+
+//vector<GAMember> topMembers;
+//GeneticAlgorithm* ga = new GeneticAlgorithm(membersInGeneration, 1);
+
+//for (int i = 0; i < generationCount; i++)
+//{
+//	topMembers.push_back(ga->getTopMember());
+//	cout <<i <<": " << ga->getTopMember().getFitness() << endl;
+//	ga->evolve();
+//}
+
+//GAMember topMember = topMembers[0];
+//for (size_t i=0; i<topMembers.size(); i++)
+//{
+//	if (topMembers[i].getFitness() > topMember.getFitness())
+//	{
+//		topMember = topMembers[i];
+//	}
+//}
+//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, neuronsInLayer, topMember.getWeights()));
+//robotSimulation = new RobotSimulation(ActionMachine(StatesCount, topMember.getWeights()));
+
+//robotSimulation = new RobotSimulation(MotorNeuralNetwork(layerCount, 
+//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));
+
+/*************************************************************************
+/we have the special one. let's see how it moves
+**************************************************************************/
+//cout << "Learning procedure has finished. Type any character to proceed to graphic presentation.\n";
+//char c;
+//cin >> c;
+
+//robotSimulation = std::make_unique<robo::RoboSimulationModelBase>(MotorNeuralNetwork(layerCount,
+//	neuronsInLayer, generate(MotorNeuralNetwork::calculateNeuronCount(layerCount, neuronsInLayer), -1.0f, 1.0f)));

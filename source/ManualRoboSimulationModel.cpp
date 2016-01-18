@@ -3,7 +3,8 @@
 
 namespace robo
 {
-ManualRoboSimulationModel::ManualRoboSimulationModel()
+ManualRoboSimulationModel::ManualRoboSimulationModel(const RoboConfig& roboConf) : 
+	RoboSimulationModelBase(roboConf)
 {
 	_jointA->EnableMotor(true);
 	_jointB->EnableMotor(true);

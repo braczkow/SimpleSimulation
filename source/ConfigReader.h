@@ -13,13 +13,15 @@ struct RoboConfig
 	struct RoboPartDescription
 	{
 		RoboPartDescription() :
-			color(Color(0, 0, 0, 0)) {}
+			color(Color(0, 0, 0, 0)),
+			x(0.0f), y(0.0f), angle(0.0f) {}
 
-		std::string name;
 		robo::Color color;
+		float x, y;
+		float angle;
 	};
 
-	std::vector<RoboPartDescription> roboParts;
+	std::map<std::string, RoboPartDescription> roboParts;
 };
 
 struct DebugConfig

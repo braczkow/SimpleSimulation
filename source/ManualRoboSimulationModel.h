@@ -8,7 +8,7 @@ namespace robo
 class ManualRoboSimulationModel : public RoboSimulationModelBase
 {
 public:
-	ManualRoboSimulationModel();
+	ManualRoboSimulationModel(const RoboConfig& roboConf);
 
 	virtual ~ManualRoboSimulationModel() {}
 

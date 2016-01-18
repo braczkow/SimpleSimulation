@@ -18,14 +18,11 @@
 
 using namespace std;
 
-int layerCount = 3;
-int neuronsInLayer[] = {5, 8, 2};
-extern const int StatesCount;
-
 namespace robo
 {
 
-RoboSimulationModelBase::RoboSimulationModelBase() :
+RoboSimulationModelBase::RoboSimulationModelBase(const RoboConfig& roboConf) :
+	_roboConfig(roboConf),
 	 roboArmHx(1.5f), roboArmHy(0.2f),
 	_roboMain(nullptr), _roboArm1(nullptr), _roboArm2(nullptr), _jointA(nullptr), _jointB(nullptr),
 	_roboWheel(nullptr), _jointC(nullptr)
@@ -78,12 +75,18 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 
 	if (enableRobo)
 	{
+		if (!_roboConfig.roboParts.count("main"))
+		{
+			throw 1;
+		}
+		auto conf = _roboConfig.roboParts["main"];
+
 		//main robo part
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(2.0f, 1.0f);
-
+		//bodyDef.position.Set(2.0f, 1.0f);
 		_roboMain = _world->CreateBody(&bodyDef);
+		_roboMain->SetTransform(b2Vec2(conf.x, conf.y), conf.angle);
 
 		b2PolygonShape boxShape;
 		boxShape.SetAsBox(2.0f, 1.0f);
@@ -104,6 +107,11 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		bd.angle = 45.0f * DEG_TO_RAD;
 
 		_roboArm1 = _world->CreateBody(&bd);
+		if (_roboConfig.roboParts.count("arm1"))
+		{
+			auto conf = _roboConfig.roboParts["arm1"];
+			_roboArm1->SetTransform(b2Vec2(conf.x, conf.y), conf.angle);
+		}
 
 		b2PolygonShape boxShape;
 		boxShape.SetAsBox(roboArmHx, roboArmHy);
@@ -124,6 +132,11 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		bd.angle = -45.0f * DEG_TO_RAD;
 
 		_roboArm2 = _world->CreateBody(&bd);
+		if (_roboConfig.roboParts.count("arm2"))
+		{
+			auto conf = _roboConfig.roboParts["arm2"];
+			_roboArm2->SetTransform(b2Vec2(conf.x, conf.y), conf.angle);
+		}
 
 		b2PolygonShape boxShape;
 		boxShape.SetAsBox(roboArmHx, roboArmHy);
@@ -151,9 +164,9 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		revJointDef.lowerAngle = -45 * DEG_TO_RAD;
 		revJointDef.upperAngle = 90 * DEG_TO_RAD;
 
-		revJointDef.enableMotor = false;
+		revJointDef.enableMotor = true;
 		revJointDef.maxMotorTorque = 100;
-		revJointDef.motorSpeed = 0;
+		revJointDef.motorSpeed = -1.01;
 
 		_jointA = (b2RevoluteJoint*)_world->CreateJoint(&revJointDef);
 	}
@@ -174,9 +187,9 @@ RoboSimulationModelBase::RoboSimulationModelBase() :
 		revJointDef.upperAngle = 45 * DEG_TO_RAD;
 
 
-		revJointDef.enableMotor = false;
+		revJointDef.enableMotor = true;
 		revJointDef.maxMotorTorque = 100;
-		revJointDef.motorSpeed = 0.0f;
+		revJointDef.motorSpeed = -1.01f;
 
 		_jointB = (b2RevoluteJoint*)_world->CreateJoint(&revJointDef);
 	}
@@ -262,6 +275,7 @@ std::shared_ptr<Rectangular2D> RoboSimulationModelBase::makeRoboRectangularPartD
 
 	auto fixture = (b2PolygonShape*)body->GetFixtureList()[0].GetShape();
 	auto trans = body->GetTransform();
+	auto angle = trans.q.GetAngle();
 
 	for (int32 i = 0; i < fixture->GetVertexCount(); ++i)
 	{

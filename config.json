@@ -15,9 +15,18 @@
 	"parts" : 
 	{
 	"static" : {"color" : "yellow"},
-	"main" : {"color" : "blue"},
-	"arm1" : {"color" : "green"},
-	"arm2" : {"color" : "yellow"},
+	"main" : {
+		"color" : "blue",
+		"trans" : [2.0, 1.25, -0.122]
+		},
+	"arm1" : {
+		"color" : "green",
+		"trans" : [5.09, 3.21, 0.64]
+		},
+	"arm2" : {
+		"color" : "yellow",
+		"trans" : [7.89, 3.59, -0.37]
+		},
 	"wheel" : {"color" : "green"}
 	}
 }

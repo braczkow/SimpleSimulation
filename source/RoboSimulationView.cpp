@@ -10,18 +10,11 @@ void RoboSimulationView::drawShapes(std::vector<std::shared_ptr<robo::RoboPart>>
 {
 	for (auto s : shapes)
 	{
-		auto colorIt = std::find_if(roboConfig.roboParts.begin(), roboConfig.roboParts.end(),
-		[s](const RoboConfig::RoboPartDescription rpd)->bool
-		{
-			return s->name == rpd.name;
-		});
-		
 		Color c(1, 0, 0, 1);
-		if (colorIt != roboConfig.roboParts.end())
+		if (roboConfig.roboParts.count(s->name))
 		{
-			c = colorIt->color;
+			c = roboConfig.roboParts[s->name].color;
 		}
-
 
 		if (auto rec = std::dynamic_pointer_cast<Rectangular2D>(s))
 		{

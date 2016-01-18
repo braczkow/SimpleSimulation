@@ -49,19 +49,20 @@ float GAMember::getFitness()
 	else
 	{
 		debug_print("Fitness NOT calculated, running simulation\n");
-		MotorNeuralNetwork mnn(layerCount, neuronsInLayer, _values);
-		robo::NNRoboSimulationModel rs;
-
-		//ActionMachine am(StatesCount, _values);
-		//RobotSimulation rs(am);
-
-		rs.step();
-		debug_print("After simulation, about to get distance\n");
 		throw 1;
-		//_fitness = max(0.0f, rs.getFitness());
+		//MotorNeuralNetwork mnn(layerCount, neuronsInLayer, _values);
+		//robo::NNRoboSimulationModel rs;
 
-		debug_print("Setting _fitnessCalculated = true\n");
-		_fitnessCalculated = true;
+		////ActionMachine am(StatesCount, _values);
+		////RobotSimulation rs(am);
+
+		//rs.step();
+		//debug_print("After simulation, about to get distance\n");
+		//throw 1;
+		////_fitness = max(0.0f, rs.getFitness());
+
+		//debug_print("Setting _fitnessCalculated = true\n");
+		//_fitnessCalculated = true;
 
 		return _fitness;
 	}

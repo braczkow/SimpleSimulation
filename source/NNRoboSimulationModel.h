@@ -8,7 +8,8 @@ namespace robo
 class NNRoboSimulationModel : public RoboSimulationModelBase
 {
 public:
-	NNRoboSimulationModel() {}
+	NNRoboSimulationModel(const RoboConfig& roboConf) : 
+	RoboSimulationModelBase(roboConf) {}
 
 	virtual ~NNRoboSimulationModel() {}
 

@@ -55,15 +55,20 @@ bool ConfigReader::tryParse(std::string filePath)
 			for (auto partName = partNames.begin(); partName != partNames.end(); partName++)
 			{
 				RoboConfig::RoboPartDescription roboPartDesc;
-				roboPartDesc.name = *partName;
 
 				auto partDesc = parts[*partName];
 				if (partDesc.isMember("color"))
 				{
 					roboPartDesc.color = toColor(partDesc["color"].asString());
 				}
+				if (partDesc.isMember("trans"))
+				{
+					roboPartDesc.x = partDesc["trans"][0].asFloat();
+					roboPartDesc.y = partDesc["trans"][1].asFloat();
+					roboPartDesc.angle = partDesc["trans"][2].asFloat();
+				}
 
-				roboConfig.roboParts.push_back(roboPartDesc);
+				roboConfig.roboParts[*partName] = roboPartDesc;
 			}
 
 		}
